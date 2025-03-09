@@ -1,54 +1,61 @@
-# React + TypeScript + Vite
+# Grid Shape to Vertices
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This tool lets you draw a shape to a grid and then displays the vertices for that shape.
 
-Currently, two official plugins are available:
+Try the Live Demo (Coming Soon)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech
 
-## Expanding the ESLint configuration
+Created with Vite, React, TypeScript, and Tailwind
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Description
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+Need to extract vertices from 2D grid-based shapes? Tired of manually counting grid cells? Let this tool handle it for you!
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+First draw a valid shape (all cells but the first must be connected to other cells). Then, look at the output and see the vertices.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+They are presented as an array of pairs: [[0,0], [0,1], [1,1], [1,0]]
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Use these vertices for whatever you need, such as drawing the shape to a canvas element.
+
+## Controls
+
+- **Select single cell** → Left Click
+- **Select multiple cells** → Left Click + Drag
+- **Deselect single cell** → Right Click
+- **Deselect multiple cells** → Right Click + Drag
+- **Change origin** → Middle Mouse Button / Space
+
+## Installation
+
+1. Open a terminal and navigate to directory where you wish to save the project
+
+2. Clone the project
+
+   ```
+   git clone https://github.com/jrbarnhart/grid-shape-to-vertices.git
+   ```
+
+3. Change directory to cloned project directory
+
+   ```
+   cd grid-shape-to-vertices
+   ```
+
+4. Install dependencies
+
+   ```
+   pnpm install
+   ```
+
+5. Start the dev server with the dev script
+
+   ```
+   pnpm dev
+   ```
+
+6. Navigate to the displayed url. Default: http://localhost:5173/
+
+## License
+
+This project is licensed under the MIT License.
