@@ -1,21 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function App() {
   const defaultCellCount = 1600; // 40 * 40
   const defaultOrigin = 20 * 40 + 20; // (n / 2 * n) + n /2  n = sqrt(cellCount)
   const defaultCellSize = 20;
+  const defaultGridState = Array.from({ length: defaultCellCount }, () => 0);
 
   const [cellCount, setCellCount] = useState(defaultCellCount);
   const [origin, setOrigin] = useState(defaultOrigin); // Middle cell will be cellCount / 2
   const [cellSize, setCellSize] = useState(defaultCellSize);
   const [vertices, setVertices] = useState<[number, number][]>([]);
   const [status, setStatus] = useState("No shape drawn.");
+  const [gridState, setGridState] = useState(defaultGridState);
+
+  const isDrawing = useRef(false);
 
   // Update origin if cellCount changes
   useEffect(() => {
     const n = Math.sqrt(cellCount);
     setOrigin((n / 2) * n + n / 2);
   }, [cellCount]);
+
+  const disableContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {};
+
+  const handleMouseMove = (e: React.MouseEvent) => {};
+
+  const handleMouseUp = (e: React.MouseEvent) => {};
 
   return (
     <div className="flex flex-col items-center">
@@ -47,12 +61,13 @@ function App() {
         </div>
 
         <div
-          className="grid gap-[1px] bg-gray-900 shadow-md p-[1px] select-none"
+          className="grid gap-[1px] bg-gray-900 shadow-md p-[1px] select-none "
           style={{
             gridTemplateColumns: `repeat(${Math.sqrt(
               cellCount
             ).toString()}, 1fr)`,
           }}
+          onContextMenu={disableContextMenu}
         >
           {Array.from({ length: cellCount }).map((_, index) => (
             <div
@@ -63,6 +78,9 @@ function App() {
               className={`${
                 index === origin ? "bg-slate-800" : "bg-slate-600"
               } h-5 w-5 hover:bg-blue-300 cursor-pointer`}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
             />
           ))}
         </div>
