@@ -14,22 +14,142 @@ function App() {
   const [gridState, setGridState] = useState(defaultGridState);
 
   const isDrawing = useRef(false);
+  const isErasing = useRef(false);
+  const startCell = useRef(-1);
+  const endCell = useRef(-1);
+  const previewCells = useRef<number[]>([]);
 
-  // Update origin if cellCount changes
+  // Update origin and grid state if cellCount changes
   useEffect(() => {
     const n = Math.sqrt(cellCount);
     setOrigin((n / 2) * n + n / 2);
+    setGridState(Array.from({ length: cellCount }, () => 0));
   }, [cellCount]);
 
   const disableContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {};
+  // Get row and column from index
+  const getRowCol = (index: number) => {
+    const gridSize = Math.sqrt(cellCount);
+    const row = Math.floor(index / gridSize);
+    const col = index % gridSize;
+    return { row, col };
+  };
 
-  const handleMouseMove = (e: React.MouseEvent) => {};
+  // Get index from row and column
+  const getIndex = (row: number, col: number) => {
+    const gridSize = Math.sqrt(cellCount);
+    return row * gridSize + col;
+  };
 
-  const handleMouseUp = (e: React.MouseEvent) => {};
+  // Get cells in rectangle from startCell to endCell
+  const getCellsInRectangle = (start: number, end: number) => {
+    const startPos = getRowCol(start);
+    const endPos = getRowCol(end);
+
+    const minRow = Math.min(startPos.row, endPos.row);
+    const maxRow = Math.max(startPos.row, endPos.row);
+    const minCol = Math.min(startPos.col, endPos.col);
+    const maxCol = Math.max(startPos.col, endPos.col);
+
+    const cells: number[] = [];
+
+    for (let row = minRow; row <= maxRow; row++) {
+      for (let col = minCol; col <= maxCol; col++) {
+        cells.push(getIndex(row, col));
+      }
+    }
+
+    return cells;
+  };
+
+  // Clear grid handler
+  const handleClearGrid = () => {
+    setGridState(Array.from({ length: cellCount }, () => 0));
+    setVertices([]);
+    setStatus("Grid cleared.");
+    const n = Math.sqrt(cellCount);
+    setOrigin((n / 2) * n + n / 2);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent, index: number) => {
+    if (e.button === 1) {
+      setOrigin(index);
+      return;
+    } else if (e.button === 0) {
+      // Left click
+      isDrawing.current = true;
+      isErasing.current = false;
+    } else if (e.button === 2) {
+      // Right click
+      isDrawing.current = false;
+      isErasing.current = true;
+    }
+
+    startCell.current = index;
+    endCell.current = index;
+
+    // For immediate feedback on click
+    const newGrid = [...gridState];
+    if (isDrawing.current) {
+      newGrid[index] = 1;
+    } else if (isErasing.current) {
+      newGrid[index] = 0;
+    }
+    setGridState(newGrid);
+
+    setStatus(isDrawing.current ? "Drawing..." : "Erasing...");
+  };
+
+  const handleMouseMove = (e: React.MouseEvent, index: number) => {
+    if (!isDrawing.current && !isErasing.current) return;
+
+    endCell.current = index;
+
+    // Calculate preview cells
+    previewCells.current = getCellsInRectangle(
+      startCell.current,
+      endCell.current
+    );
+
+    // Update status with preview information
+    const cellCount = previewCells.current.length;
+    setStatus(
+      `${
+        isDrawing.current ? "Drawing" : "Erasing"
+      } preview: ${cellCount.toString()} cells`
+    );
+  };
+
+  const handleMouseUp = () => {
+    if (!isDrawing.current && !isErasing.current) return;
+
+    // Apply the drawing/erasing to all cells in the rectangle
+    const cellsToModify = getCellsInRectangle(
+      startCell.current,
+      endCell.current
+    );
+    const newGrid = [...gridState];
+
+    cellsToModify.forEach((cellIndex) => {
+      newGrid[cellIndex] = isDrawing.current ? 1 : 0;
+    });
+
+    setGridState(newGrid);
+
+    setStatus(
+      `${cellsToModify.length.toString()} cells ${
+        isDrawing.current ? "drawn" : "erased"
+      }.`
+    );
+
+    // Reset states
+    isDrawing.current = false;
+    isErasing.current = false;
+    previewCells.current = [];
+  };
 
   return (
     <div className="flex flex-col items-center">
@@ -40,6 +160,7 @@ function App() {
           <button
             type="button"
             className="bg-blue-500 hover:bg-blue-400 text-primary px-2 py-4 rounded-sm cursor-pointer font-bold select-none"
+            onClick={handleClearGrid}
           >
             Clear Grid
           </button>
@@ -68,21 +189,43 @@ function App() {
             ).toString()}, 1fr)`,
           }}
           onContextMenu={disableContextMenu}
+          onMouseLeave={() => {
+            isDrawing.current = false;
+            isErasing.current = false;
+            previewCells.current = [];
+          }}
         >
-          {Array.from({ length: cellCount }).map((_, index) => (
-            <div
-              // No insertion or deletion happening so this is ok to ignore
-              // eslint-disable-next-line react-x/no-array-index-key
-              key={index}
-              data-index={index}
-              className={`${
-                index === origin ? "bg-slate-800" : "bg-slate-600"
-              } h-5 w-5 hover:bg-blue-300 cursor-pointer`}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-            />
-          ))}
+          {gridState.map((cell, index) => {
+            const isPreview = previewCells.current.includes(index);
+            const previewDrawing = isDrawing.current && isPreview;
+            const previewErasing = isErasing.current && isPreview;
+
+            return (
+              <div
+                // These are not inserted or deleted so this is ok
+                // eslint-disable-next-line react-x/no-array-index-key
+                key={index}
+                className={`${
+                  index === origin
+                    ? "bg-slate-800"
+                    : previewDrawing
+                    ? "bg-blue-300"
+                    : previewErasing
+                    ? "bg-red-300"
+                    : cell === 1
+                    ? "bg-blue-100"
+                    : "bg-slate-600"
+                } h-5 w-5 hover:bg-blue-300 cursor-pointer`}
+                onMouseDown={(e) => {
+                  handleMouseDown(e, index);
+                }}
+                onMouseMove={(e) => {
+                  handleMouseMove(e, index);
+                }}
+                onMouseUp={handleMouseUp}
+              />
+            );
+          })}
         </div>
 
         <p className="select-none">{status}</p>
