@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type CellSizeValue = "Small" | "Medium" | "Large";
 
@@ -32,18 +32,28 @@ function App() {
   };
 
   // Get row and column from index
-  const getRowCol = (index: number) => {
-    const gridSize = Math.sqrt(cellCount);
-    const row = Math.floor(index / gridSize);
-    const col = index % gridSize;
-    return { row, col };
-  };
+  const getRowCol = useCallback(
+    (index: number) => {
+      const gridSize = Math.sqrt(cellCount);
+      const row = Math.floor(index / gridSize);
+      const col = index % gridSize;
+      return { row, col };
+    },
+    [cellCount]
+  );
 
   // Get index from row and column
-  const getIndex = (row: number, col: number) => {
-    const gridSize = Math.sqrt(cellCount);
-    return row * gridSize + col;
-  };
+  const getIndex = useCallback(
+    (row: number, col: number) => {
+      const gridSize = Math.sqrt(cellCount);
+      return row * gridSize + col;
+    },
+    [cellCount]
+  );
+
+  // Find valid shape
+
+  // Extract vertices from valid shape
 
   // Get cells in rectangle from startCell to endCell
   const getCellsInRectangle = (start: number, end: number) => {
