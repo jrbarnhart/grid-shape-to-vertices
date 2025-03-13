@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 
+type CellSizeValue = "Small" | "Medium" | "Large";
+
 function App() {
   const defaultCellCount = 1600; // 40 * 40
   const defaultOrigin = 20 * 40 + 20; // (n / 2 * n) + n /2  n = sqrt(cellCount)
-  const defaultCellSize = 20;
   const defaultGridState = Array.from({ length: defaultCellCount }, () => 0);
 
   const [cellCount, setCellCount] = useState(defaultCellCount);
   const [origin, setOrigin] = useState(defaultOrigin); // Middle cell will be cellCount / 2
-  const [cellSize, setCellSize] = useState(defaultCellSize);
+  const [cellSize, setCellSize] = useState<CellSizeValue>("Medium");
   const [vertices, setVertices] = useState<[number, number][]>([]);
   const [status, setStatus] = useState("No shape drawn.");
   const [gridState, setGridState] = useState(defaultGridState);
@@ -103,7 +104,7 @@ function App() {
     setStatus(isDrawing.current ? "Drawing..." : "Erasing...");
   };
 
-  const handleMouseMove = (e: React.MouseEvent, index: number) => {
+  const handleMouseMove = (index: number) => {
     if (!isDrawing.current && !isErasing.current) return;
 
     endCell.current = index;
@@ -179,6 +180,22 @@ function App() {
               <option value={40 * 40}>40x40</option>
             </select>
           </label>
+
+          <label htmlFor="cell-count-select">
+            Cell Size:{" "}
+            <select
+              className="bg-gray-900 px-1 py-2 rounded-sm"
+              defaultValue={cellSize}
+              onChange={(e) => {
+                setCellSize(e.target.value as CellSizeValue);
+              }}
+              id="cell-count-select"
+            >
+              <option value={"Small"}>Small</option>
+              <option value={"Medium"}>Medium</option>
+              <option value={"Large"}>Large</option>
+            </select>
+          </label>
         </div>
 
         <div
@@ -190,6 +207,7 @@ function App() {
           }}
           onContextMenu={disableContextMenu}
           onMouseLeave={() => {
+            console.log("Leave");
             isDrawing.current = false;
             isErasing.current = false;
             previewCells.current = [];
@@ -215,12 +233,18 @@ function App() {
                     : cell === 1
                     ? "bg-blue-100"
                     : "bg-slate-600"
-                } h-5 w-5 hover:bg-blue-300 cursor-pointer`}
+                } ${
+                  cellSize === "Small"
+                    ? "h-2.5 w-2.5"
+                    : cellSize === "Medium"
+                    ? "h-5 w-5"
+                    : "h-8 w-8"
+                } hover:bg-blue-300 cursor-pointer`}
                 onMouseDown={(e) => {
                   handleMouseDown(e, index);
                 }}
-                onMouseMove={(e) => {
-                  handleMouseMove(e, index);
+                onMouseMove={() => {
+                  handleMouseMove(index);
                 }}
                 onMouseUp={handleMouseUp}
               />
