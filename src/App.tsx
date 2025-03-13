@@ -13,12 +13,12 @@ function App() {
   const [vertices, setVertices] = useState<[number, number][]>([]);
   const [status, setStatus] = useState("No shape drawn.");
   const [gridState, setGridState] = useState(defaultGridState);
+  const [previewCells, setPreviewCells] = useState<number[]>([]);
 
   const isDrawing = useRef(false);
   const isErasing = useRef(false);
   const startCell = useRef(-1);
   const endCell = useRef(-1);
-  const previewCells = useRef<number[]>([]);
 
   // Update origin and grid state if cellCount changes
   useEffect(() => {
@@ -110,13 +110,10 @@ function App() {
     endCell.current = index;
 
     // Calculate preview cells
-    previewCells.current = getCellsInRectangle(
-      startCell.current,
-      endCell.current
-    );
+    setPreviewCells(getCellsInRectangle(startCell.current, endCell.current));
 
     // Update status with preview information
-    const cellCount = previewCells.current.length;
+    const cellCount = previewCells.length;
     setStatus(
       `${
         isDrawing.current ? "Drawing" : "Erasing"
@@ -149,7 +146,13 @@ function App() {
     // Reset states
     isDrawing.current = false;
     isErasing.current = false;
-    previewCells.current = [];
+    setPreviewCells([]);
+  };
+
+  const handleMouseLeave = () => {
+    isDrawing.current = false;
+    isErasing.current = false;
+    setPreviewCells([]);
   };
 
   return (
@@ -206,15 +209,10 @@ function App() {
             ).toString()}, 1fr)`,
           }}
           onContextMenu={disableContextMenu}
-          onMouseLeave={() => {
-            console.log("Leave");
-            isDrawing.current = false;
-            isErasing.current = false;
-            previewCells.current = [];
-          }}
+          onMouseLeave={handleMouseLeave}
         >
           {gridState.map((cell, index) => {
-            const isPreview = previewCells.current.includes(index);
+            const isPreview = previewCells.includes(index);
             const previewDrawing = isDrawing.current && isPreview;
             const previewErasing = isErasing.current && isPreview;
 
