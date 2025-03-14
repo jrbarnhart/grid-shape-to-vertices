@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useMouseControls from "./lib/useMouseControls";
 import useKeyControls from "./lib/useKeyControls";
 import VertexOverlay from "./components/SvgVertexOverlay";
@@ -25,6 +25,9 @@ function App() {
   const [gridState, setGridState] = useState<number[][]>(defaultGridState);
   const [previewCells, setPreviewCells] = useState<Point[]>([]);
   const [hoveredCell, setHoveredCell] = useState<Point | null>(null);
+  const [toastHidden, setToastHidden] = useState(true);
+  const [toolTipHidden, setToolTipHidden] = useState(true);
+  const toolTipInterval = useRef<number | null>(null);
 
   // Update origin and gridState if gridSize changes
   useEffect(() => {
@@ -84,7 +87,10 @@ function App() {
 
   // Copy vertices to clipboard
   const handleVerticesClick = () => {
-    console.log("CLICK");
+    setToastHidden(false);
+    setTimeout(() => {
+      setToastHidden(true);
+    }, 1500);
     const formattedVertices = `[${vertices
       .map(
         (vertex) =>
@@ -96,6 +102,19 @@ function App() {
     navigator.clipboard.writeText(formattedVertices).catch((err: unknown) => {
       console.error(err);
     });
+  };
+
+  const handleVerticesMouseOver = () => {
+    setToolTipHidden(false);
+    if (toolTipInterval.current) {
+      clearInterval(toolTipInterval.current);
+    }
+  };
+
+  const handleVerticesMouseLeave = () => {
+    toolTipInterval.current = setTimeout(() => {
+      setToolTipHidden(true);
+    }, 300);
   };
 
   return (
@@ -235,23 +254,42 @@ function App() {
         <div className="flex items-center gap-2">
           <p className="select-none">{status}</p>
           <h3 className="select-none">Shape Vertices:</h3>
-          <button
-            type="button"
-            className="max-w-[min(75%,_800px)] hover:text-green-500"
-            onClick={handleVerticesClick}
-          >
-            [
-            {vertices
-              .map(
-                (vertice) =>
-                  `[${(vertice.x - origin.x).toString()}, ${(
-                    vertice.y - origin.y
-                  ).toString()}] `
-              )
-              .join(", ")}
-            ]
-          </button>
+          <div className="relative">
+            <div
+              className={`${
+                toolTipHidden ? "opacity-0" : "opacity-100"
+              } absolute -top-12 -left-12 whitespace-nowrap bg-gray-900 p-2 rounded-lg transition-opacity ease-in`}
+            >
+              <p>Click to Copy</p>
+            </div>
+            <button
+              type="button"
+              className="max-w-[min(75%,_800px)] hover:text-green-500"
+              onClick={handleVerticesClick}
+              onMouseEnter={handleVerticesMouseOver}
+              onMouseLeave={handleVerticesMouseLeave}
+            >
+              [
+              {vertices
+                .map(
+                  (vertice) =>
+                    `[${(vertice.x - origin.x).toString()}, ${(
+                      vertice.y - origin.y
+                    ).toString()}] `
+                )
+                .join(", ")}
+              ]
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div
+        className={`${
+          toastHidden ? "opacity-0" : "opacity-100"
+        } absolute bottom-0 right-0 p-5 bg-gray-900 rounded-2xl m-4 transition-opacity ease-in`}
+      >
+        <p>Copied text to clipboard.</p>
       </div>
     </div>
   );
