@@ -85,9 +85,11 @@ function App() {
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center gap-5">
-        <h1 className="text-3xl font-semibold pt-5">2D Shape Grid Editor</h1>
+        <h1 className="text-3xl font-semibold pt-5 select-none">
+          2D Shape Grid Editor
+        </h1>
 
-        <div className=" flex gap-4 items-center">
+        <div className=" flex gap-4 items-center select-none">
           <button
             type="button"
             className="bg-blue-500 hover:bg-blue-400 text-primary px-2 py-4 rounded-sm cursor-pointer font-bold select-none"
@@ -139,6 +141,12 @@ function App() {
             </select>
           </label>
         </div>
+
+        <p className="font-bold select-none">
+          Controls: <span className="whitespace-nowrap">Draw - Left Mouse</span>{" "}
+          <span className="whitespace-nowrap">Erase - Right Mouse</span>{" "}
+          <span className="whitespace-nowrap">Set Vertex - Q,E,A,D</span>
+        </p>
 
         <div
           className="relative grid grid-flow-col bg-gray-900 shadow-md p-[1px] select-none "
@@ -206,29 +214,24 @@ function App() {
           ))}
         </div>
 
-        <p className="select-none">{status}</p>
-
-        <p>{`Mouse: ${
-          hoveredCell
-            ? `${hoveredCell.x.toString()}, ${hoveredCell.y.toString()}`
-            : "X, Y"
-        }`}</p>
-
-        <h3 className="text-xl select-none">Shape Vertices:</h3>
-        <p className="max-w-[min(75%,_800px)]">
-          [
-          {vertices.map((vertice) => (
-            <span
-              key={`${vertice.x.toString()}, ${vertice.y.toString()}`}
-              className="whitespace-nowrap"
-            >
-              {`[${(vertice.x - origin.x).toString()}, ${(
-                vertice.y - origin.y
-              ).toString()}]`}
-            </span>
-          ))}
-          ]
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="select-none">{status}</p>
+          <h3 className="select-none">Shape Vertices:</h3>
+          <p className="max-w-[min(75%,_800px)]">
+            [
+            {vertices.map((vertice) => (
+              <span
+                key={`${vertice.x.toString()}, ${vertice.y.toString()}`}
+                className="whitespace-nowrap"
+              >
+                {`[${(vertice.x - origin.x).toString()}, ${(
+                  vertice.y - origin.y
+                ).toString()}]`}
+              </span>
+            ))}
+            ]
+          </p>
+        </div>
       </div>
     </div>
   );
