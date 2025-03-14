@@ -144,9 +144,9 @@ function App() {
         </div>
 
         <div
-          className="grid gap-[1px] bg-gray-900 shadow-md p-[1px] select-none "
+          className="grid gap-[1px] grid-flow-col bg-gray-900 shadow-md p-[1px] select-none "
           style={{
-            gridTemplateColumns: `repeat(${gridSize.x.toString()}, 1fr)`,
+            gridTemplateRows: `repeat(${gridSize.x.toString()}, 1fr)`,
           }}
           onContextMenu={disableContextMenu}
           onMouseLeave={handleMouseLeaveGrid}
@@ -218,7 +218,10 @@ function App() {
         <p className="output" id="output">
           [
           {vertices.map(
-            (vertice) => `[${vertice.x.toString()}, ${vertice.y.toString()}]`
+            (vertice) =>
+              `[${(vertice.x - origin.x).toString()}, ${(
+                vertice.y - origin.y
+              ).toString()}]`
           )}
           ]
         </p>
