@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useMouseControls from "./lib/useMouseControls";
 import validateShape from "./lib/validateShape";
+import extractVertices from "./lib/extractVertices";
 
 type SizeValue = "Small" | "Medium" | "Large";
 
@@ -42,7 +43,10 @@ function App() {
   useEffect(() => {
     const isValidShape = validateShape({ gridSize, gridState, setStatus });
     if (isValidShape) {
-      // Extract vertices from the gridState and setVertices
+      const vertices = extractVertices(gridState);
+      setVertices(vertices.map((vertex) => [vertex.x, vertex.y]));
+    } else {
+      setVertices([]);
     }
   }, [gridSize, gridState]);
 
