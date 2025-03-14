@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useMouseControls from "./lib/useMouseControls";
 import validateShape from "./lib/validateShape";
-import { extractVertices } from "./lib/extractVertices";
+import useKeyControls from "./lib/useKeyControls";
 
 type SizeValue = "Small" | "Medium" | "Large";
 
@@ -20,10 +20,11 @@ function App() {
   });
   const [origin, setOrigin] = useState<Point>(defaultOrigin); // Middle cell will be cellCount / 2
   const [cellSize, setCellSize] = useState<SizeValue>("Medium");
-  const [vertices, setVertices] = useState<[number, number][]>([]);
+  const [vertices, setVertices] = useState<Point[]>([]);
   const [status, setStatus] = useState<string>("No shape drawn.");
   const [gridState, setGridState] = useState<number[][]>(defaultGridState);
   const [previewCells, setPreviewCells] = useState<Point[]>([]);
+  const [hoveredCell, setHoveredCell] = useState<Point | null>(null);
 
   // Update origin and gridState if gridSize changes
   useEffect(() => {
@@ -41,8 +42,7 @@ function App() {
   useEffect(() => {
     const isValidShape = validateShape({ gridSize, gridState, setStatus });
     if (isValidShape) {
-      const vertices = extractVertices(gridState);
-      setVertices(vertices.map((vertex) => [vertex.x, vertex.y]));
+      setVertices([]);
     } else {
       setVertices([]);
     }
@@ -72,7 +72,9 @@ function App() {
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
+    handleMouseEnter,
     handleMouseLeave,
+    handleMouseLeaveGrid,
     isDrawing,
     isErasing,
   } = useMouseControls({
@@ -82,9 +84,11 @@ function App() {
     setOrigin,
     setPreviewCells,
     setStatus,
+    setHoveredCell,
   });
 
-  // Extract vertices from valid shape
+  // Keyboard controls
+  useKeyControls({ hoveredCell, setVertices });
 
   return (
     <div className="flex flex-col items-center">
@@ -127,7 +131,7 @@ function App() {
             </select>
           </label>
 
-          <label htmlFor="cell-count-select">
+          <label htmlFor="cell-size-select">
             Cell Size:{" "}
             <select
               className="bg-gray-900 px-1 py-2 rounded-sm"
@@ -135,7 +139,7 @@ function App() {
               onChange={(e) => {
                 setCellSize(e.target.value as SizeValue);
               }}
-              id="cell-count-select"
+              id="cell-size-select"
             >
               <option value={"Small"}>Small</option>
               <option value={"Medium"}>Medium</option>
@@ -150,7 +154,7 @@ function App() {
             gridTemplateColumns: `repeat(${gridSize.x.toString()}, 1fr)`,
           }}
           onContextMenu={disableContextMenu}
-          onMouseLeave={handleMouseLeave}
+          onMouseLeave={handleMouseLeaveGrid}
         >
           {gridState.map((col, colNumber) => (
             <div
@@ -191,6 +195,10 @@ function App() {
                       handleMouseMove({ x: colNumber, y: rowNumber });
                     }}
                     onMouseUp={handleMouseUp}
+                    onMouseEnter={() => {
+                      handleMouseEnter({ x: colNumber, y: rowNumber });
+                    }}
+                    onMouseLeave={handleMouseLeave}
                   />
                 );
               })}
@@ -200,9 +208,19 @@ function App() {
 
         <p className="select-none">{status}</p>
 
+        <p>{`Mouse: ${
+          hoveredCell
+            ? `${hoveredCell.x.toString()}, ${hoveredCell.y.toString()}`
+            : "X, Y"
+        }`}</p>
+
         <h3 className="text-xl select-none">Shape Vertices:</h3>
         <p className="output" id="output">
-          [{vertices.map((vertice) => `[${vertice.toString()}]`)}]
+          [
+          {vertices.map(
+            (vertice) => `[${vertice.x.toString()}, ${vertice.y.toString()}]`
+          )}
+          ]
         </p>
       </div>
     </div>
