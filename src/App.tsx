@@ -1,75 +1,74 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-type CellSizeValue = "Small" | "Medium" | "Large";
+type SizeValue = "Small" | "Medium" | "Large";
 
 function App() {
-  const defaultCellCount = 1600; // 40 * 40
-  const defaultOrigin = 20 * 40 + 20; // (n / 2 * n) + n /2  n = sqrt(cellCount)
-  const defaultGridState = Array.from({ length: defaultCellCount }, () => 0);
+  const defaultXSize = 40;
+  const defaultYSize = 40;
+  const defaultOrigin = { x: defaultXSize / 2, y: defaultYSize / 2 };
+  const defaultGridState: number[][] = Array.from({ length: defaultXSize }).map(
+    () => Array.from({ length: defaultYSize }).fill(0) as number[]
+  );
 
-  const [cellCount, setCellCount] = useState(defaultCellCount);
-  const [origin, setOrigin] = useState(defaultOrigin); // Middle cell will be cellCount / 2
-  const [cellSize, setCellSize] = useState<CellSizeValue>("Medium");
+  // const defaultGridState = Array.from({ length: defaultCellCount }, () => 0);
+  const [gridSize, setGridSize] = useState<{ x: number; y: number }>({
+    x: defaultXSize,
+    y: defaultYSize,
+  });
+  const [origin, setOrigin] = useState<{ x: number; y: number }>(defaultOrigin); // Middle cell will be cellCount / 2
+  const [cellSize, setCellSize] = useState<SizeValue>("Medium");
   const [vertices, setVertices] = useState<[number, number][]>([]);
-  const [status, setStatus] = useState("No shape drawn.");
-  const [gridState, setGridState] = useState(defaultGridState);
-  const [previewCells, setPreviewCells] = useState<number[]>([]);
+  const [status, setStatus] = useState<string>("No shape drawn.");
+  const [gridState, setGridState] = useState<number[][]>(defaultGridState);
+  const [previewCells, setPreviewCells] = useState<{ x: number; y: number }[]>(
+    []
+  );
 
   const isDrawing = useRef(false);
   const isErasing = useRef(false);
-  const startCell = useRef(-1);
-  const endCell = useRef(-1);
+  const startCell = useRef<null | { x: number; y: number }>(null);
+  const endCell = useRef<null | { x: number; y: number }>(null);
 
-  // Update origin and grid state if cellCount changes
+  // Update origin and gridState if gridSize changes
   useEffect(() => {
-    const n = Math.sqrt(cellCount);
-    setOrigin((n / 2) * n + n / 2);
-    setGridState(Array.from({ length: cellCount }, () => 0));
-  }, [cellCount]);
+    setOrigin({ x: gridSize.x / 2, y: gridSize.y / 2 });
+    setGridState(() => {
+      const newState = Array.from({ length: gridSize.x }).map(
+        () => Array.from({ length: gridSize.y }).fill(0) as number[]
+      );
 
+      return newState;
+    });
+  }, [gridSize]);
+
+  // Disable context menu on mouse events
   const disableContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
   };
-
-  // Get row and column from index
-  const getRowCol = useCallback(
-    (index: number) => {
-      const gridSize = Math.sqrt(cellCount);
-      const row = Math.floor(index / gridSize);
-      const col = index % gridSize;
-      return { row, col };
-    },
-    [cellCount]
-  );
-
-  // Get index from row and column
-  const getIndex = useCallback(
-    (row: number, col: number) => {
-      const gridSize = Math.sqrt(cellCount);
-      return row * gridSize + col;
-    },
-    [cellCount]
-  );
 
   // Find valid shape
 
   // Extract vertices from valid shape
 
   // Get cells in rectangle from startCell to endCell
-  const getCellsInRectangle = (start: number, end: number) => {
-    const startPos = getRowCol(start);
-    const endPos = getRowCol(end);
+  const getCellsInRectangle = (
+    startPos: { x: number; y: number } | null,
+    endPos: { x: number; y: number } | null
+  ) => {
+    if (!startPos || !endPos) {
+      return [];
+    }
 
-    const minRow = Math.min(startPos.row, endPos.row);
-    const maxRow = Math.max(startPos.row, endPos.row);
-    const minCol = Math.min(startPos.col, endPos.col);
-    const maxCol = Math.max(startPos.col, endPos.col);
+    const minRow = Math.min(startPos.y, endPos.y);
+    const maxRow = Math.max(startPos.y, endPos.y);
+    const minCol = Math.min(startPos.x, endPos.x);
+    const maxCol = Math.max(startPos.x, endPos.x);
 
-    const cells: number[] = [];
+    const cells: { x: number; y: number }[] = [];
 
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
-        cells.push(getIndex(row, col));
+        cells.push({ x: col, y: row });
       }
     }
 
@@ -78,16 +77,24 @@ function App() {
 
   // Clear grid handler
   const handleClearGrid = () => {
-    setGridState(Array.from({ length: cellCount }, () => 0));
+    setGridState(() => {
+      const newState = Array.from({ length: gridSize.x }).map(
+        () => Array.from({ length: gridSize.y }).fill(0) as number[]
+      );
+
+      return newState;
+    });
     setVertices([]);
     setStatus("Grid cleared.");
-    const n = Math.sqrt(cellCount);
-    setOrigin((n / 2) * n + n / 2);
+    setOrigin({ x: gridSize.x / 2, y: gridSize.y / 2 });
   };
 
-  const handleMouseDown = (e: React.MouseEvent, index: number) => {
+  const handleMouseDown = (
+    e: React.MouseEvent,
+    pos: { x: number; y: number }
+  ) => {
     if (e.button === 1) {
-      setOrigin(index);
+      setOrigin(pos);
       return;
     } else if (e.button === 0) {
       // Left click
@@ -99,25 +106,25 @@ function App() {
       isErasing.current = true;
     }
 
-    startCell.current = index;
-    endCell.current = index;
+    startCell.current = pos;
+    endCell.current = pos;
 
     // For immediate feedback on click
     const newGrid = [...gridState];
     if (isDrawing.current) {
-      newGrid[index] = 1;
+      newGrid[pos.x][pos.y] = 1;
     } else if (isErasing.current) {
-      newGrid[index] = 0;
+      newGrid[pos.x][pos.y] = 0;
     }
     setGridState(newGrid);
 
     setStatus(isDrawing.current ? "Drawing..." : "Erasing...");
   };
 
-  const handleMouseMove = (index: number) => {
+  const handleMouseMove = (pos: { x: number; y: number }) => {
     if (!isDrawing.current && !isErasing.current) return;
 
-    endCell.current = index;
+    endCell.current = pos;
 
     // Calculate preview cells
     setPreviewCells(getCellsInRectangle(startCell.current, endCell.current));
@@ -141,8 +148,8 @@ function App() {
     );
     const newGrid = [...gridState];
 
-    cellsToModify.forEach((cellIndex) => {
-      newGrid[cellIndex] = isDrawing.current ? 1 : 0;
+    cellsToModify.forEach((cellPos) => {
+      newGrid[cellPos.x][cellPos.y] = isDrawing.current ? 1 : 0;
     });
 
     setGridState(newGrid);
@@ -182,15 +189,27 @@ function App() {
             Grid Size:{" "}
             <select
               className="bg-gray-900 px-1 py-2 rounded-sm"
-              defaultValue={cellCount}
+              defaultValue={"Large"}
               onChange={(e) => {
-                setCellCount(parseInt(e.target.value));
+                setGridSize(() => {
+                  const size = e.target.value;
+                  switch (size) {
+                    case "Small":
+                      return { x: 20, y: 20 };
+                    case "Medium":
+                      return { x: 30, y: 30 };
+                    case "Large":
+                      return { x: 40, y: 40 };
+                    default:
+                      return { x: 40, y: 40 };
+                  }
+                });
               }}
               id="cell-count-select"
             >
-              <option value={20 * 20}>20x20</option>
-              <option value={30 * 30}>30x30</option>
-              <option value={40 * 40}>40x40</option>
+              <option value={"Small"}>Small</option>
+              <option value={"Medium"}>Medium</option>
+              <option value={"Large"}>Large</option>
             </select>
           </label>
 
@@ -200,7 +219,7 @@ function App() {
               className="bg-gray-900 px-1 py-2 rounded-sm"
               defaultValue={cellSize}
               onChange={(e) => {
-                setCellSize(e.target.value as CellSizeValue);
+                setCellSize(e.target.value as SizeValue);
               }}
               id="cell-count-select"
             >
@@ -214,50 +233,55 @@ function App() {
         <div
           className="grid gap-[1px] bg-gray-900 shadow-md p-[1px] select-none "
           style={{
-            gridTemplateColumns: `repeat(${Math.sqrt(
-              cellCount
-            ).toString()}, 1fr)`,
+            gridTemplateColumns: `repeat(${gridSize.x.toString()}, 1fr)`,
           }}
           onContextMenu={disableContextMenu}
           onMouseLeave={handleMouseLeave}
         >
-          {gridState.map((cell, index) => {
-            const isPreview = previewCells.includes(index);
-            const previewDrawing = isDrawing.current && isPreview;
-            const previewErasing = isErasing.current && isPreview;
+          {gridState.map((col, colNumber) => (
+            <div
+              key={`column-${colNumber.toString()}`}
+              style={{ display: "contents" }}
+            >
+              {col.map((cell, rowNumber) => {
+                const isPreview = previewCells.some(
+                  (pos) => pos.x === colNumber && pos.y === rowNumber
+                );
+                const previewDrawing = isDrawing.current && isPreview;
+                const previewErasing = isErasing.current && isPreview;
 
-            return (
-              <div
-                // These are not inserted or deleted so this is ok
-                // eslint-disable-next-line react-x/no-array-index-key
-                key={index}
-                className={`${
-                  index === origin
-                    ? "bg-slate-800"
-                    : previewDrawing
-                    ? "bg-blue-300"
-                    : previewErasing
-                    ? "bg-red-300"
-                    : cell === 1
-                    ? "bg-blue-100"
-                    : "bg-slate-600"
-                } ${
-                  cellSize === "Small"
-                    ? "h-2.5 w-2.5"
-                    : cellSize === "Medium"
-                    ? "h-5 w-5"
-                    : "h-8 w-8"
-                } hover:bg-blue-300 cursor-pointer`}
-                onMouseDown={(e) => {
-                  handleMouseDown(e, index);
-                }}
-                onMouseMove={() => {
-                  handleMouseMove(index);
-                }}
-                onMouseUp={handleMouseUp}
-              />
-            );
-          })}
+                return (
+                  <div
+                    key={`cell-${colNumber.toString()}-${rowNumber.toString()}`}
+                    className={`${
+                      colNumber === origin.x && rowNumber === origin.y
+                        ? "bg-slate-800"
+                        : previewDrawing
+                        ? "bg-blue-300"
+                        : previewErasing
+                        ? "bg-red-300"
+                        : cell === 1
+                        ? "bg-blue-100"
+                        : "bg-slate-600"
+                    } ${
+                      cellSize === "Small"
+                        ? "h-2.5 w-2.5"
+                        : cellSize === "Medium"
+                        ? "h-5 w-5"
+                        : "h-8 w-8"
+                    } hover:bg-blue-300 cursor-pointer`}
+                    onMouseDown={(e) => {
+                      handleMouseDown(e, { x: colNumber, y: rowNumber });
+                    }}
+                    onMouseMove={() => {
+                      handleMouseMove({ x: colNumber, y: rowNumber });
+                    }}
+                    onMouseUp={handleMouseUp}
+                  />
+                );
+              })}
+            </div>
+          ))}
         </div>
 
         <p className="select-none">{status}</p>
