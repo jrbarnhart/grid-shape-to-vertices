@@ -178,11 +178,6 @@ function App() {
                         ? "bg-blue-300"
                         : previewErasing
                         ? "bg-red-300"
-                        : vertices.findIndex(
-                            (point) =>
-                              point.x === colNumber && point.y === rowNumber
-                          ) >= 0
-                        ? "bg-pink-500"
                         : cell === 1
                         ? "bg-blue-100"
                         : "bg-slate-600"
