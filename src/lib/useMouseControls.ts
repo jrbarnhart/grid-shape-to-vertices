@@ -7,22 +7,24 @@ export default function useMouseControls({
   setStatus,
   previewCells,
   setPreviewCells,
+  setHoveredCell,
 }: {
-  setOrigin: React.Dispatch<SetStateAction<{ x: number; y: number }>>;
+  setOrigin: React.Dispatch<SetStateAction<Point>>;
   gridState: number[][];
   setGridState: React.Dispatch<SetStateAction<number[][]>>;
   setStatus: React.Dispatch<SetStateAction<string>>;
-  previewCells: { x: number; y: number }[];
-  setPreviewCells: React.Dispatch<SetStateAction<{ x: number; y: number }[]>>;
+  previewCells: Point[];
+  setPreviewCells: React.Dispatch<SetStateAction<Point[]>>;
+  setHoveredCell: React.Dispatch<SetStateAction<Point | null>>;
 }) {
   const isDrawing = useRef(false);
   const isErasing = useRef(false);
-  const startCell = useRef<null | { x: number; y: number }>(null);
-  const endCell = useRef<null | { x: number; y: number }>(null);
+  const startCell = useRef<null | Point>(null);
+  const endCell = useRef<null | Point>(null);
 
   const getCellsInRectangle = (
-    startPos: { x: number; y: number } | null,
-    endPos: { x: number; y: number } | null
+    startPos: Point | null,
+    endPos: Point | null
   ) => {
     if (!startPos || !endPos) {
       return [];
@@ -33,7 +35,7 @@ export default function useMouseControls({
     const minCol = Math.min(startPos.x, endPos.x);
     const maxCol = Math.max(startPos.x, endPos.x);
 
-    const cells: { x: number; y: number }[] = [];
+    const cells: Point[] = [];
 
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
@@ -44,10 +46,7 @@ export default function useMouseControls({
     return cells;
   };
 
-  const handleMouseDown = (
-    e: React.MouseEvent,
-    pos: { x: number; y: number }
-  ) => {
+  const handleMouseDown = (e: React.MouseEvent, pos: Point) => {
     if (e.button === 1) {
       setOrigin(pos);
       return;
@@ -76,7 +75,7 @@ export default function useMouseControls({
     setStatus(isDrawing.current ? "Drawing..." : "Erasing...");
   };
 
-  const handleMouseMove = (pos: { x: number; y: number }) => {
+  const handleMouseMove = (pos: Point) => {
     if (!isDrawing.current && !isErasing.current) return;
 
     endCell.current = pos;
@@ -121,7 +120,15 @@ export default function useMouseControls({
     setPreviewCells([]);
   };
 
+  const handleMouseEnter = (pos: Point) => {
+    setHoveredCell(pos);
+  };
+
   const handleMouseLeave = () => {
+    setHoveredCell(null);
+  };
+
+  const handleMouseLeaveGrid = () => {
     isDrawing.current = false;
     isErasing.current = false;
     setPreviewCells([]);
@@ -133,6 +140,8 @@ export default function useMouseControls({
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
+    handleMouseEnter,
     handleMouseLeave,
+    handleMouseLeaveGrid,
   };
 }
