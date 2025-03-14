@@ -10,7 +10,7 @@ export default function useKeyControls({
   const handleKeyUp = useCallback(
     (e: KeyboardEvent) => {
       if (!hoveredCell) return;
-      if (e.key === " ") {
+      if (e.code === "KeyV") {
         setVertices((prev) => {
           const existingIndex = prev.findIndex(
             (point) => point.x === hoveredCell.x && point.y === hoveredCell.y
