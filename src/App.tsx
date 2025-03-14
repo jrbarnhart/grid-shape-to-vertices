@@ -40,12 +40,7 @@ function App() {
 
   // When gridState changes check for valid shape
   useEffect(() => {
-    const isValidShape = validateShape({ gridSize, gridState, setStatus });
-    if (isValidShape) {
-      setVertices([]);
-    } else {
-      setVertices([]);
-    }
+    validateShape({ gridSize, gridState, setStatus });
   }, [gridSize, gridState]);
 
   // Disable context menu on mouse events
@@ -178,6 +173,11 @@ function App() {
                         ? "bg-blue-300"
                         : previewErasing
                         ? "bg-red-300"
+                        : vertices.findIndex(
+                            (point) =>
+                              point.x === colNumber && point.y === rowNumber
+                          ) >= 0
+                        ? "bg-pink-500"
                         : cell === 1
                         ? "bg-blue-100"
                         : "bg-slate-600"
