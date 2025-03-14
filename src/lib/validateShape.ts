@@ -70,7 +70,6 @@ export default function validateShape({
   }
 }
 
-// Find all connected cells starting from a given cell
 const findConnectedCells = (
   startX: number,
   startY: number,
@@ -91,11 +90,11 @@ const findConnectedCells = (
 
   while (queue.length > 0) {
     const entry = queue.shift();
-    const { x, y } = entry || { x: null, y: null };
+    if (!entry) continue; // Better null check
+
+    const { x, y } = entry;
+
     // Skip if already visited or out of bounds or not filled
-    if (!x || !y) {
-      continue;
-    }
     if (
       x < 0 ||
       x >= gridSize.x ||
