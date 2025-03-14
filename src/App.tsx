@@ -215,14 +215,18 @@ function App() {
         }`}</p>
 
         <h3 className="text-xl select-none">Shape Vertices:</h3>
-        <p className="output" id="output">
+        <p className="max-w-[min(75%,_800px)]">
           [
-          {vertices.map(
-            (vertice) =>
-              `[${(vertice.x - origin.x).toString()}, ${(
+          {vertices.map((vertice) => (
+            <span
+              key={`${vertice.x.toString()}, ${vertice.y.toString()}`}
+              className="whitespace-nowrap"
+            >
+              {`[${(vertice.x - origin.x).toString()}, ${(
                 vertice.y - origin.y
-              ).toString()}]`
-          )}
+              ).toString()}]`}
+            </span>
+          ))}
           ]
         </p>
       </div>
