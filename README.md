@@ -10,13 +10,14 @@ Created with Vite, React, TypeScript, and Tailwind
 
 ## Description
 
-Need to extract vertices from 2D grid-based shapes? Tired of manually counting grid cells? Let this tool handle it for you!
+This tool is designed to draw grid based shapes, add their vertices, and get an array of those vertices relative
+to an arbitrary origin.
 
-First draw a valid shape (all cells but the first must be connected to other cells). Then, look at the output and see the vertices.
+First draw a shape. Then add your vertices manually. Adjust the origin as desired. The vertices will be output below the grid.
 
 They are presented as an array of pairs: [[0,0], [0,1], [1,1], [1,0]]
 
-Use these vertices for whatever you need, such as drawing the shape to a canvas element.
+Use these vertices for whatever you need, like drawing the shape to a canvas element.
 
 ## Controls
 
