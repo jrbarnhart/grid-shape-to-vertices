@@ -17,9 +17,33 @@ export default function useKeyControls({
           );
 
           if (existingIndex >= 0) {
-            return prev.filter((_, index) => index !== existingIndex);
+            return prev
+              .filter((_, index) => index !== existingIndex)
+              .sort((a, b) => {
+                if (a.x > b.x) {
+                  return 1;
+                } else if (a.x < b.x) {
+                  return -1;
+                } else if (a.y > b.y) {
+                  return 1;
+                } else if (a.y < b.y) {
+                  return -1;
+                }
+                return 0;
+              });
           } else {
-            return [...prev, hoveredCell];
+            return [...prev, hoveredCell].sort((a, b) => {
+              if (a.x > b.x) {
+                return 1;
+              } else if (a.x < b.x) {
+                return -1;
+              } else if (a.y > b.y) {
+                return 1;
+              } else if (a.y < b.y) {
+                return -1;
+              }
+              return 0;
+            });
           }
         });
       }
