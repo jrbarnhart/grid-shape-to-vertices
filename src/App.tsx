@@ -143,8 +143,10 @@ function App() {
         </div>
 
         <p className="font-bold select-none">
-          Controls: <span className="whitespace-nowrap">Draw - Left Mouse</span>{" "}
-          <span className="whitespace-nowrap">Erase - Right Mouse</span>{" "}
+          Controls:{" "}
+          <span className="whitespace-nowrap">Draw - Left Mouse |</span>{" "}
+          <span className="whitespace-nowrap">Erase - Right Mouse |</span>{" "}
+          <span className="whitespace-nowrap">Set Origin - Middle Mouse |</span>
           <span className="whitespace-nowrap">Set Vertex - Q,E,A,D</span>
         </p>
 
