@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useMouseControls from "./lib/useMouseControls";
 import validateShape from "./lib/validateShape";
-import extractVertices from "./lib/extractVertices";
+import { extractVertices } from "./lib/extractVertices";
 
 type SizeValue = "Small" | "Medium" | "Large";
 
@@ -14,18 +14,16 @@ function App() {
   );
 
   // const defaultGridState = Array.from({ length: defaultCellCount }, () => 0);
-  const [gridSize, setGridSize] = useState<{ x: number; y: number }>({
+  const [gridSize, setGridSize] = useState<Point>({
     x: defaultXSize,
     y: defaultYSize,
   });
-  const [origin, setOrigin] = useState<{ x: number; y: number }>(defaultOrigin); // Middle cell will be cellCount / 2
+  const [origin, setOrigin] = useState<Point>(defaultOrigin); // Middle cell will be cellCount / 2
   const [cellSize, setCellSize] = useState<SizeValue>("Medium");
   const [vertices, setVertices] = useState<[number, number][]>([]);
   const [status, setStatus] = useState<string>("No shape drawn.");
   const [gridState, setGridState] = useState<number[][]>(defaultGridState);
-  const [previewCells, setPreviewCells] = useState<{ x: number; y: number }[]>(
-    []
-  );
+  const [previewCells, setPreviewCells] = useState<Point[]>([]);
 
   // Update origin and gridState if gridSize changes
   useEffect(() => {
