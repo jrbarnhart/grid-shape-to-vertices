@@ -118,16 +118,16 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex flex-col items-center gap-5">
-        <h1 className="text-3xl font-semibold pt-5 select-none">
+    <div className="flex flex-col items-center relative">
+      <div className="flex flex-col items-center gap-4">
+        <h1 className="text-3xl font-semibold pt-3 select-none">
           2D Shape Grid Editor
         </h1>
 
         <div className=" flex gap-4 items-center select-none">
           <button
             type="button"
-            className="bg-blue-500 hover:bg-blue-400 text-primary px-2 py-4 rounded-sm cursor-pointer font-bold select-none"
+            className="bg-blue-500 hover:bg-blue-400 text-primary px-2 py-3 rounded-sm cursor-pointer font-bold select-none"
             onClick={handleClearGrid}
           >
             Clear Grid
@@ -184,6 +184,8 @@ function App() {
           <span className="whitespace-nowrap">Set Origin - Middle Mouse |</span>
           <span className="whitespace-nowrap">Set Vertex - Q,E,A,D</span>
         </p>
+
+        <p className="select-none">{status}</p>
 
         <div
           className="relative grid grid-flow-col bg-gray-900 shadow-md p-[1px] select-none "
@@ -251,25 +253,23 @@ function App() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
-          <p className="select-none">{status}</p>
-          <h3 className="select-none">Shape Vertices:</h3>
-          <div className="relative">
+        <div className="flex items-center">
+          <div className="relative flex flex-col items-center w-full">
             <div
               className={`${
                 toolTipHidden ? "opacity-0" : "opacity-100"
-              } absolute -top-12 -left-12 whitespace-nowrap bg-gray-900 p-2 rounded-lg transition-opacity ease-in`}
+              } absolute -top-12 left-[calc(1/2_*_100%_-_56px)] whitespace-nowrap bg-gray-900 p-2 rounded-lg transition-opacity ease-in`}
             >
               <p>Click to Copy</p>
             </div>
             <button
               type="button"
-              className="max-w-[min(75%,_800px)] hover:text-green-500"
+              className="hover:text-green-500 px-10 py-2 bg-gray-800 rounded-2xl border-gray-400 border shadow-sm mb-5 mx-5 max-w-3xl"
               onClick={handleVerticesClick}
               onMouseEnter={handleVerticesMouseOver}
               onMouseLeave={handleVerticesMouseLeave}
             >
-              [
+              Vertices: [
               {vertices
                 .map(
                   (vertice) =>
