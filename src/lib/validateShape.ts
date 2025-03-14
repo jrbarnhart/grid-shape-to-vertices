@@ -5,7 +5,6 @@ export default function validateShape({
   gridSize,
   gridState,
   setStatus,
-  setVertices,
 }: {
   gridSize: {
     x: number;
@@ -13,7 +12,6 @@ export default function validateShape({
   };
   gridState: number[][];
   setStatus: React.Dispatch<SetStateAction<string>>;
-  setVertices: React.Dispatch<SetStateAction<[number, number][]>>;
 }) {
   // Create a copy of the grid to mark visited cells
   const visited = Array.from(
@@ -43,7 +41,6 @@ export default function validateShape({
   // If no filled cells, return early
   if (!startFound) {
     setStatus("No shape drawn.");
-    setVertices([]);
     return false;
   }
 
@@ -63,7 +60,6 @@ export default function validateShape({
 
   if (foundMultipleShapes) {
     setStatus("Invalid shape. All cells must be connected.");
-    setVertices([]);
     return false;
   } else {
     setStatus(`Valid shape with ${firstShape.length.toString()} cells.`);
