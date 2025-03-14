@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useMouseHanlders from "./lib/useMouseHandlers";
+import useMouseControls from "./lib/useMouseControls";
 
 type SizeValue = "Small" | "Medium" | "Large";
 
@@ -64,7 +64,7 @@ function App() {
     handleMouseLeave,
     isDrawing,
     isErasing,
-  } = useMouseHanlders({
+  } = useMouseControls({
     gridState,
     previewCells,
     setGridState,

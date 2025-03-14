@@ -1,6 +1,6 @@
 import { SetStateAction, useRef } from "react";
 
-export default function useMouseHanlders({
+export default function useMouseControls({
   setOrigin,
   gridState,
   setGridState,
