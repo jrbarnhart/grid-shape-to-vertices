@@ -11,23 +11,23 @@ export default function useKeyControls({
     (e: KeyboardEvent) => {
       if (!hoveredCell) return;
       if (
-        e.code === "Digit1" ||
-        e.code === "Digit2" ||
-        e.code === "Digit3" ||
-        e.code === "Digit4"
+        e.code === "KeyQ" ||
+        e.code === "KeyE" ||
+        e.code === "KeyD" ||
+        e.code === "KeyA"
       ) {
         const offset = { x: 0, y: 0 };
         switch (e.code) {
-          case "Digit1":
+          case "KeyQ":
             break;
-          case "Digit2":
+          case "KeyE":
             offset.x = 1;
             break;
-          case "Digit3":
+          case "KeyD":
             offset.x = 1;
             offset.y = 1;
             break;
-          case "Digit4":
+          case "KeyA":
             offset.y = 1;
             break;
         }
