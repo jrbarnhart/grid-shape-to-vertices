@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import useMouseControls from "./lib/useMouseControls";
 import useKeyControls from "./lib/useKeyControls";
+import VertexOverlay from "./components/SvgVertexOverlay";
 
 type SizeValue = "Small" | "Medium" | "Large";
 
 function App() {
-  const defaultXSize = 40;
-  const defaultYSize = 40;
+  const defaultXSize = 30;
+  const defaultYSize = 30;
   const defaultOrigin = { x: defaultXSize / 2, y: defaultYSize / 2 };
   const defaultGridState: number[][] = Array.from({ length: defaultXSize }).map(
     () => Array.from({ length: defaultYSize }).fill(0) as number[]
@@ -18,7 +19,7 @@ function App() {
     y: defaultYSize,
   });
   const [origin, setOrigin] = useState<Point>(defaultOrigin); // Middle cell will be cellCount / 2
-  const [cellSize, setCellSize] = useState<SizeValue>("Medium");
+  const [cellSize, setCellSize] = useState<SizeValue>("Large");
   const [vertices, setVertices] = useState<Point[]>([]);
   const [status, setStatus] = useState<string>("No shape drawn.");
   const [gridState, setGridState] = useState<number[][]>(defaultGridState);
@@ -98,7 +99,7 @@ function App() {
             Grid Size:{" "}
             <select
               className="bg-gray-900 px-1 py-2 rounded-sm"
-              defaultValue={"Large"}
+              defaultValue={"Medium"}
               onChange={(e) => {
                 setGridSize(() => {
                   const size = e.target.value;
@@ -140,13 +141,21 @@ function App() {
         </div>
 
         <div
-          className="grid gap-[1px] grid-flow-col bg-gray-900 shadow-md p-[1px] select-none "
+          className="relative grid grid-flow-col bg-gray-900 shadow-md p-[1px] select-none "
           style={{
             gridTemplateRows: `repeat(${gridSize.x.toString()}, 1fr)`,
           }}
           onContextMenu={disableContextMenu}
           onMouseLeave={handleMouseLeaveGrid}
         >
+          <VertexOverlay
+            cellSize={
+              cellSize === "Small" ? 10 : cellSize === "Medium" ? 20 : 32
+            }
+            gridHeight={gridSize.y}
+            gridWidth={gridSize.x}
+            vertices={vertices}
+          />
           {gridState.map((col, colNumber) => (
             <div
               key={`column-${colNumber.toString()}`}
@@ -183,7 +192,7 @@ function App() {
                         : cellSize === "Medium"
                         ? "h-5 w-5"
                         : "h-8 w-8"
-                    } hover:bg-blue-300 cursor-pointer`}
+                    } hover:bg-blue-300 cursor-pointer border border-slate-900 box-border`}
                     onMouseDown={(e) => {
                       handleMouseDown(e, { x: colNumber, y: rowNumber });
                     }}
