@@ -24,7 +24,8 @@ Use these vertices for whatever you need, such as drawing the shape to a canvas 
 - **Select multiple cells** → Left Click + Drag
 - **Deselect single cell** → Right Click
 - **Deselect multiple cells** → Right Click + Drag
-- **Change origin** → Middle Mouse Button / Space
+- **Change origin** → Middle Mouse Button
+- **Set vertice** → Q, E, A, D
 
 ## Installation
 
