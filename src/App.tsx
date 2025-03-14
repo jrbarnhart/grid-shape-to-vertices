@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import useMouseControls from "./lib/useMouseControls";
-import validateShape from "./lib/validateShape";
 import useKeyControls from "./lib/useKeyControls";
 
 type SizeValue = "Small" | "Medium" | "Large";
@@ -34,14 +33,11 @@ function App() {
         () => Array.from({ length: gridSize.y }).fill(0) as number[]
       );
 
+      setVertices([]);
+
       return newState;
     });
   }, [gridSize]);
-
-  // When gridState changes check for valid shape
-  useEffect(() => {
-    validateShape({ gridSize, gridState, setStatus });
-  }, [gridSize, gridState]);
 
   // Disable context menu on mouse events
   const disableContextMenu = (e: React.MouseEvent) => {
