@@ -82,6 +82,22 @@ function App() {
   // Keyboard controls
   useKeyControls({ hoveredCell, setVertices });
 
+  // Copy vertices to clipboard
+  const handleVerticesClick = () => {
+    console.log("CLICK");
+    const formattedVertices = `[${vertices
+      .map(
+        (vertex) =>
+          `[${(vertex.x - origin.x).toString()}, ${(
+            vertex.y - origin.y
+          ).toString()}]`
+      )
+      .join(", ")}]`;
+    navigator.clipboard.writeText(formattedVertices).catch((err: unknown) => {
+      console.error(err);
+    });
+  };
+
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center gap-5">
@@ -219,20 +235,22 @@ function App() {
         <div className="flex items-center gap-2">
           <p className="select-none">{status}</p>
           <h3 className="select-none">Shape Vertices:</h3>
-          <p className="max-w-[min(75%,_800px)]">
+          <button
+            type="button"
+            className="max-w-[min(75%,_800px)] hover:text-green-500"
+            onClick={handleVerticesClick}
+          >
             [
-            {vertices.map((vertice) => (
-              <span
-                key={`${vertice.x.toString()}, ${vertice.y.toString()}`}
-                className="whitespace-nowrap"
-              >
-                {`[${(vertice.x - origin.x).toString()}, ${(
-                  vertice.y - origin.y
-                ).toString()}]`}
-              </span>
-            ))}
+            {vertices
+              .map(
+                (vertice) =>
+                  `[${(vertice.x - origin.x).toString()}, ${(
+                    vertice.y - origin.y
+                  ).toString()}] `
+              )
+              .join(", ")}
             ]
-          </p>
+          </button>
         </div>
       </div>
     </div>
