@@ -2,7 +2,7 @@
 
 This tool lets you draw a shape to a grid and then displays the vertices for that shape.
 
-Try the Live Demo (Coming Soon)
+Try the [Live Demo](https://jrbarnhart.github.io/grid-shape-to-vertices/)
 
 ## Tech
 
